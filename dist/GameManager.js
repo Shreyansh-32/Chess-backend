@@ -31,8 +31,10 @@ class GameManager {
             var _a, _b;
             const message = JSON.parse(data.toString());
             if (message.type === message_1.INIT_GAME) {
-                if (socket === this.pendingUser)
+                if (message.payload.id === this.pendingUserId) {
+                    this.pendingUser = socket;
                     return;
+                }
                 const liveGame = this.games.find(game => (game.player1Id === message.payload.id || game.player2Id === message.payload.id) &&
                     game.result === undefined);
                 if (liveGame) {

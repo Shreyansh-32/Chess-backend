@@ -45,7 +45,7 @@ class Game {
                 where: { id: player1ID }
             });
             const player2NameUser = yield prisma.player.findFirst({
-                where: { id: player1ID }
+                where: { id: player2Id }
             });
             if (!player1NameUser || !player2NameUser)
                 return game;
