@@ -63,7 +63,7 @@ export class Game {
       where : {id : player1ID}
     });
     const player2NameUser = await prisma.player.findFirst({
-      where : {id : player1ID}
+      where : {id : player2Id}
     });
     if(!player1NameUser || !player2NameUser)return game;
     game.player1Name = player1NameUser.username;
