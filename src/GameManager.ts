@@ -30,6 +30,7 @@ export class GameManager{
             const message = JSON.parse(data.toString());
 
             if(message.type === INIT_GAME){
+                if(socket === this.pendingUser)return;
                 const liveGame = this.games.find(game => 
                         (game.player1Id === message.payload.id || game.player2Id === message.payload.id) &&
                         game.result === undefined 
