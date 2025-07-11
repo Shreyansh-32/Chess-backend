@@ -12,8 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Game = void 0;
 const chess_js_1 = require("chess.js");
 const message_1 = require("./message");
-const prisma_1 = require("../prisma/generated/prisma");
-const prisma = new prisma_1.PrismaClient();
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
 class Game {
     constructor(player1, player2, player1ID, player2Id) {
         this.moveCount = 0;
