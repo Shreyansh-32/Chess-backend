@@ -27,6 +27,8 @@ class Game {
         this.player2TimeLeft = 10 * 60 * 1000;
         this.result = undefined;
         this.clockInterval = null;
+        this.player1Name = null;
+        this.player2Name = null;
     }
     static create(player1, player2, player1ID, player2Id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,10 +41,20 @@ class Game {
                     result: "draw",
                 },
             });
+            const player1NameUser = yield prisma.player.findFirst({
+                where: { id: player1ID }
+            });
+            const player2NameUser = yield prisma.player.findFirst({
+                where: { id: player1ID }
+            });
+            if (!player1NameUser || !player2NameUser)
+                return game;
+            game.player1Name = player1NameUser.username;
+            game.player2Name = player2NameUser.username;
             game.gameId = res.id;
             game.startClock();
-            game.player1.send(JSON.stringify({ type: message_1.INIT_GAME, payload: { color: "white" } }));
-            game.player2.send(JSON.stringify({ type: message_1.INIT_GAME, payload: { color: "black" } }));
+            game.player1.send(JSON.stringify({ type: message_1.INIT_GAME, payload: { color: "white", player1Name: player1NameUser.username, player2Name: player2NameUser.username } }));
+            game.player2.send(JSON.stringify({ type: message_1.INIT_GAME, payload: { color: "black", player1Name: player1NameUser.username, player2Name: player2NameUser.username } }));
             return game;
         });
     }

@@ -21,6 +21,8 @@ export class Game {
   public player2TimeLeft: number;
   public result: "draw" | "white" | "black" | undefined;
   private clockInterval: NodeJS.Timeout | null;
+  public player1Name : string | null;
+  public player2Name : string | null;
 
   constructor(
     player1: WebSocket,
@@ -38,6 +40,8 @@ export class Game {
     this.player2TimeLeft = 10 * 60 * 1000;
     this.result = undefined;
     this.clockInterval = null;
+    this.player1Name = null;
+    this.player2Name = null;
   }
 
   static async create(
@@ -55,13 +59,22 @@ export class Game {
         result: "draw",
       },
     });
+    const player1NameUser = await prisma.player.findFirst({
+      where : {id : player1ID}
+    });
+    const player2NameUser = await prisma.player.findFirst({
+      where : {id : player1ID}
+    });
+    if(!player1NameUser || !player2NameUser)return game;
+    game.player1Name = player1NameUser.username;
+    game.player2Name = player2NameUser.username;
     game.gameId = res.id;
     game.startClock();
     game.player1.send(
-      JSON.stringify({ type: INIT_GAME, payload: { color: "white" } })
+      JSON.stringify({ type: INIT_GAME, payload: { color: "white" , player1Name : player1NameUser.username , player2Name : player2NameUser.username} })
     );
     game.player2.send(
-      JSON.stringify({ type: INIT_GAME, payload: { color: "black" } })
+      JSON.stringify({ type: INIT_GAME, payload: { color: "black" , player1Name : player1NameUser.username , player2Name : player2NameUser.username } })
     );
 
     return game;

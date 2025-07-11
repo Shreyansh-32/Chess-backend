@@ -42,7 +42,9 @@ class GameManager {
                             color: message.payload.id === liveGame.player1Id ? "w" : "b",
                             player1TimeLeft: liveGame.player1TimeLeft,
                             player2TimeLeft: liveGame.player2TimeLeft,
-                            gameHistory: liveGame.gameHistory
+                            gameHistory: liveGame.gameHistory,
+                            player1Name: liveGame.player1Name,
+                            player2Name: liveGame.player2Name
                         }
                     }));
                     if (liveGame.player1Id === message.payload.id)
