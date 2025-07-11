@@ -3,6 +3,7 @@ import { WebSocket } from "ws";
 import { GAME_OVER, INIT_GAME, MOVE } from "./message";
 import { PrismaClient } from "../prisma/generated/prisma";
 
+
 const prisma = new PrismaClient();
 
 export class Game {

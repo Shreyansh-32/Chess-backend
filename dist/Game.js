@@ -23,8 +23,8 @@ class Game {
         this.player2Id = player2Id;
         this.board = new chess_js_1.Chess();
         this.lastMoveTime = new Date().getTime();
-        this.player1TimeLeft = 5 * 60 * 1000;
-        this.player2TimeLeft = 5 * 60 * 1000;
+        this.player1TimeLeft = 10 * 60 * 1000;
+        this.player2TimeLeft = 10 * 60 * 1000;
         this.result = undefined;
         this.clockInterval = null;
     }
