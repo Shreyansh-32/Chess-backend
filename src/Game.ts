@@ -23,6 +23,8 @@ export class Game {
   private clockInterval: NodeJS.Timeout | null;
   public player1Name : string | null;
   public player2Name : string | null;
+  public isPlayer1Draw : boolean;
+  public isPlayer2Draw : boolean;
 
   constructor(
     player1: WebSocket,
@@ -42,6 +44,8 @@ export class Game {
     this.clockInterval = null;
     this.player1Name = null;
     this.player2Name = null;
+    this.isPlayer1Draw = false;
+    this.isPlayer2Draw = false;
   }
 
   static async create(
@@ -256,5 +260,94 @@ export class Game {
         },
       })
     );
+  }
+
+  public async resign(playerId : number){
+    const winner = playerId === this.player1Id ? "white" : playerId === this.player2Id ? "black" : "draw";
+    if(winner){
+      async function res(){
+        try{
+        
+        const resGame =  await prisma.game.findFirst({
+          where : {
+            OR:[
+              {player1Id : playerId},
+              {player2Id : playerId}
+            ],
+            status : false
+          }
+        })
+
+        if(resGame){
+          await prisma.game.update({
+            where:{
+              id : resGame.id
+            },
+            data:{
+              result : winner,
+              status : true
+            }
+          });
+          return true;
+        }
+        return false;
+      }catch(err){return false;}
+      }
+
+      const out = await res();
+      if(out){
+        this.player1.send(JSON.stringify({
+          "type" : GAME_OVER,
+          payload : {
+            "winner" : winner,
+            player1TimeLeft : this.player1TimeLeft,
+            player2TimeLeft : this.player2TimeLeft,
+          }
+        }));
+        this.player2.send(JSON.stringify({
+          "type" : GAME_OVER,
+          payload : {
+            "winner" : winner,
+            player1TimeLeft : this.player1TimeLeft,
+            player2TimeLeft : this.player2TimeLeft,
+          }
+        }));
+      }
+    }
+  }
+
+  async draw(playerId : number){
+    this.isPlayer1Draw = playerId === this.player1Id;
+    this.isPlayer2Draw = playerId === this.player2Id;
+
+    if(this.isPlayer1Draw && this.isPlayer2Draw){
+      try{
+        await prisma.game.update({
+          where : {
+            id : this.gameId
+          },
+          data:{
+            status : true,
+            result : "draw"
+          }
+        });
+        this.player1.send(JSON.stringify({
+          "type" : GAME_OVER,
+          payload : {
+            "winner" : "draw",
+            player1TimeLeft : this.player1TimeLeft,
+            player2TimeLeft : this.player2TimeLeft,
+          }
+        }));
+        this.player2.send(JSON.stringify({
+          "type" : GAME_OVER,
+          payload : {
+            "winner" : "draw",
+            player1TimeLeft : this.player1TimeLeft,
+            player2TimeLeft : this.player2TimeLeft,
+          }
+        }));
+      }catch(err){return;}
+    }
   }
 }

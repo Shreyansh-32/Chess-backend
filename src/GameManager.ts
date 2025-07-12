@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { INIT_GAME, MOVE } from "./message";
+import { INIT_GAME, MOVE, RESIGN } from "./message";
 import { Game } from "./Game";
 
 export class GameManager{
@@ -28,6 +28,16 @@ export class GameManager{
     private addHandler(socket : WebSocket){
         socket.on("message",  async(data) => {
             const message = JSON.parse(data.toString());
+
+            if(message.type === RESIGN){
+                if(!message.payload.id)return;
+                const id = parseInt(message.payload.id);
+                const game = this.games.find(game => game.player1Id ===id || game.player2Id === id);
+                if(game){
+                    await game.resign(id);
+                }
+                return;
+            }
 
             if(message.type === INIT_GAME){
                 if(message.payload.id === this.pendingUserId){
@@ -59,12 +69,14 @@ export class GameManager{
                 if(this.pendingUser){
                     if(!this.pendingUserId)return;
                     if(this.pendingUser === socket)return;
+                    if(!message.payload.id)return;
                     const game = await Game.create(this.pendingUser , socket , this.pendingUserId , message.payload.id);
                     this.games.push(game);
                     this.pendingUser = null;
                     this.pendingUserId = null;
                 }else{
                     this.pendingUser = socket;
+                    if(!message.payload.id)return;
                     this.pendingUserId = message.payload.id;
                 }
             }

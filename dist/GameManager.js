@@ -30,6 +30,16 @@ class GameManager {
         socket.on("message", (data) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             const message = JSON.parse(data.toString());
+            if (message.type === message_1.RESIGN) {
+                if (!message.payload.id)
+                    return;
+                const id = parseInt(message.payload.id);
+                const game = this.games.find(game => game.player1Id === id || game.player2Id === id);
+                if (game) {
+                    yield game.resign(id);
+                }
+                return;
+            }
             if (message.type === message_1.INIT_GAME) {
                 if (message.payload.id === this.pendingUserId) {
                     this.pendingUser = socket;
@@ -62,6 +72,8 @@ class GameManager {
                         return;
                     if (this.pendingUser === socket)
                         return;
+                    if (!message.payload.id)
+                        return;
                     const game = yield Game_1.Game.create(this.pendingUser, socket, this.pendingUserId, message.payload.id);
                     this.games.push(game);
                     this.pendingUser = null;
@@ -69,6 +81,8 @@ class GameManager {
                 }
                 else {
                     this.pendingUser = socket;
+                    if (!message.payload.id)
+                        return;
                     this.pendingUserId = message.payload.id;
                 }
             }
