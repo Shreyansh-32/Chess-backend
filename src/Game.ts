@@ -263,7 +263,7 @@ export class Game {
   }
 
   public async resign(playerId : number){
-    const winner = playerId === this.player1Id ? "white" : playerId === this.player2Id ? "black" : "draw";
+    const winner = playerId === this.player1Id ? "black" : playerId === this.player2Id ? "white" : "draw";
     if(winner){
       async function res(){
         try{
@@ -312,13 +312,16 @@ export class Game {
             player2TimeLeft : this.player2TimeLeft,
           }
         }));
+        return true;
       }
+      return false;
     }
+    return false;
   }
 
   async draw(playerId : number){
-    this.isPlayer1Draw = playerId === this.player1Id;
-    this.isPlayer2Draw = playerId === this.player2Id;
+    if(playerId === this.player1Id)this.isPlayer1Draw = true;
+    if(playerId === this.player2Id)this.isPlayer2Draw = true;
 
     if(this.isPlayer1Draw && this.isPlayer2Draw){
       try{
@@ -347,7 +350,9 @@ export class Game {
             player2TimeLeft : this.player2TimeLeft,
           }
         }));
-      }catch(err){return;}
+        return true;
+      }catch(err){return false;}
     }
+    return false;
   }
 }

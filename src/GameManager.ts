@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { INIT_GAME, MOVE, RESIGN } from "./message";
+import { DRAW, INIT_GAME, MOVE, RESIGN } from "./message";
 import { Game } from "./Game";
 
 export class GameManager{
@@ -34,7 +34,23 @@ export class GameManager{
                 const id = parseInt(message.payload.id);
                 const game = this.games.find(game => game.player1Id ===id || game.player2Id === id);
                 if(game){
-                    await game.resign(id);
+                  const res = await game.resign(id);
+                  if(res){
+                    this.games = this.games.filter((gam) => gam !== game);
+                  }
+                }
+                return;
+            }
+
+            if(message.type === DRAW){
+                if(!message.payload.id)return;
+                const id = parseInt(message.payload.id);
+                const game = this.games.find(game => game.player1Id === id || game.player2Id === id);
+                if(game){
+                    const res = await game.draw(id);
+                    if(res){
+                        this.games = this.games.filter((gam) => gam !== game);
+                    }
                 }
                 return;
             }
